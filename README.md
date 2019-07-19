@@ -1,30 +1,17 @@
 # chinese_licence_plate_generator
 A tool for generating Chinese license plate dataset for plate detecting
  
-When you are working on a Automatic Number Plate Recognition(ANPR) project, you may need thoundands of samples to train. Heres is
- my solution for generating chinese licence plate samples.
- 
-## First Stage: Generate the plate
-There are two kind of plates:
-1 real plate are cutted from pictures
+### To run
 
-2 Fake plate are formed with several random characters 
- 
-## Second Stage: Generate world(background)
-I named background with ‘world’ in my code. 
-There are two kinds of world image:
-1 image with only one color
-I used only blue image for blue plate, yellow and white image could be added. 
-2 Random image from some big datasets
- 
-## Third Stage: Add objects to world
-I add some negative objects for hard nagative mining, and adds only one plate to one world. I put the position of the plate relative to the world in the image file name. You can read the position from the image file name as ground truth.
- 
-##Prerequisites
-I used Python 3.5.2 (from Anaconda 4.2.0)
-python-opencv 3.1
+```sh
+python fake_plate_generator.py
+```
 
-## Here are some examples:
- ![excmple](https://raw.githubusercontent.com/Nenger/chinese_licence_plate_generator/master/demo_output_train/01a7ml54_0091_0078_0082_0039.png)
- ![excmple](https://raw.githubusercontent.com/Nenger/chinese_licence_plate_generator/master/demo_output_train/16D9170D_0074_0163_0129_0053.png)
- ![excmple](https://raw.githubusercontent.com/Nenger/chinese_licence_plate_generator/master/demo_output_train/29x4bb7s_0356_0229_0115_0043.png)
+### Run with arguments to indicate number of images wanted (Default is 1000)
+```sh
+python fake_plate_generator.py 3000
+```
+
+#### Images are stored in the folder test_plate
+#### Background images are randomly selected from the folder "/fake_resources/plate_background_use"
+#### Numbers and Lettters are randomly selected from the folder "/fake_resources/numbers" and "/fake_resources/numbers respectively"
