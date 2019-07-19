@@ -110,8 +110,8 @@ if __name__ == "__main__":
 
     fake_plate_generator = FakePlateGenerator(fake_resource_dir, img_size)
     reset_folder(output_dir)
-
-    for i in range(0, 1000):
+    numImgs = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
+    for i in range(0, numImgs):
         plate, plate_name = fake_plate_generator.generate_one_plate()
         plate = jittering_color(plate)
         plate = add_noise(plate)
