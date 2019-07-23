@@ -113,9 +113,11 @@ if __name__ == "__main__":
     numImgs = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
     for i in range(0, numImgs):
         plate, plate_name = fake_plate_generator.generate_one_plate()
+        plate = underline(plate)
         plate = jittering_color(plate)
         plate = add_noise(plate)
         plate = jittering_blur(plate)
         plate = jittering_scale(plate)
+        plate = perspectiveTransform(plate)
 
         save_random_img(output_dir, plate)
