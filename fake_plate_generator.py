@@ -1,3 +1,4 @@
+#coding=utf-8
 import itertools
 import math
 import os
@@ -5,6 +6,7 @@ import random
 import sys
 import numpy as np
 import cv2
+import codecs
 
 from img_utils import *
 from jittering_methods import *
@@ -70,7 +72,7 @@ class FakePlateGenerator():
             img = cv2.imread(path + filename, -1)
             
             height, width = img.shape[:2]
-            x_size = int(width*(dst_y_size/height))
+            x_size = int(width*(dst_y_size/float(height)))
             img_scaled = cv2.resize(img, (x_size, dst_y_size), interpolation = cv2.INTER_CUBIC)
             
             img_list[filename[:-4]] = img_scaled
@@ -90,21 +92,25 @@ class FakePlateGenerator():
         overlay_img(character, plate, mask, start_x, start_y)
 
     def generate_one_plate(self):
+        plate_chars = ""
         _, plate_img = self.get_radom_sample(self.plates)
         plate_name = ""
     
         character, img = self.get_radom_sample(self.chinese)
         self.add_character_to_plate(img, plate_img, self.character_position_x_list_part_1[0])
         plate_name += "%s"%(character,)
+        plate_chars += character
 
         character, img = self.get_radom_sample(self.letters)
         self.add_character_to_plate(img, plate_img, self.character_position_x_list_part_1[1])
         plate_name += "%s"%(character,)
+        plate_chars += character
 
         for i in range(5):
             character, img =  self.get_radom_sample(self.numbers_and_letters)
             self.add_character_to_plate(img, plate_img, self.character_position_x_list_part_2[i])
             plate_name += character
+            plate_chars += character
 
         #转换为RBG三通道
         plate_img = cv2.cvtColor(plate_img, cv2.COLOR_BGRA2BGR)
@@ -112,16 +118,23 @@ class FakePlateGenerator():
         #转换到目标大小
         plate_img = cv2.resize(plate_img, self.dst_size, interpolation = cv2.INTER_AREA)
 
-        return plate_img, plate_name
+        return plate_img, plate_name, plate_chars
+
+def write_to_txt(fo,img_name, plate_characters):
+    plate_label = '|' + '|'.join(plate_characters) + '|'
+    line = img_name + ';' + plate_label.upper() + '\n'
+    line.encode('utf8')
+    fo.write("%s" % line)
 
 if __name__ == "__main__":
     img_size = (300, 90)
 
     reset_folder(output_dir)
     numImgs = args.num_imgs
+    fo = codecs.open(output_dir + 'labels.txt', "w", encoding='utf-8')
     for i in range(0, numImgs):
         fake_plate_generator = FakePlateGenerator(fake_resource_dir, img_size)
-        plate, plate_name = fake_plate_generator.generate_one_plate()
+        plate, plate_name, plate_chars = fake_plate_generator.generate_one_plate()
         plate = underline(plate)
         plate = jittering_color(plate)
         plate = add_noise(plate,noise_range)
@@ -132,5 +145,5 @@ if __name__ == "__main__":
         plate = random_rank_blur(plate,rank_blur)
         plate = random_motion_blur(plate,motion_blur)
         plate = random_brightness(plate, brightness)
-
-        save_random_img(output_dir, plate)
+        file_name = save_random_img(output_dir, plate)
+        write_to_txt(fo,file_name,plate_chars)
