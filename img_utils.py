@@ -22,13 +22,6 @@ def reset_folder(path):
      except:
           pass
 
-def warpPerspective(src, M33, sl, gpu):
-    if gpu:
-        from libs.gpu.GpuWrapper import cudaWarpPerspectiveWrapper
-        dst = cudaWarpPerspectiveWrapper(src.astype(np.uint8), M33, (sl, sl), cv2.INTER_CUBIC)
-    else:
-        dst = cv2.warpPerspective(src, M33, (sl, sl), flags=cv2.INTER_CUBIC)
-    return dst
 
 def emboss(img):
     kernel = np.array([
@@ -171,7 +164,7 @@ def make_affine_transform(from_shape, to_shape,
 
     return M
 
-def save_random_img(dir, img):
-    name = dir + str(uuid.uuid1()) + ".jpg"
+def save_random_img(dir,plate_chars, img):
+    name = dir + plate_chars + "_" + str(uuid.uuid1()) + ".jpg"
     cv2.imwrite(name, img)
     return name
