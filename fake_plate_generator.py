@@ -121,9 +121,11 @@ class FakePlateGenerator():
         return plate_img, plate_name, plate_chars
 
 def write_to_txt(fo,img_name, plate_characters):
-    plate_label = '|' + '|'.join(plate_characters) + '|'
-    line = img_name + ';' + plate_label.upper() + '\n'
-    line.encode('utf8')
+    plate_characters.decode('utf8')
+    plate_label = '|' + '|'.join(plate_characters.decode('utf8')) + '|'
+    print plate_label
+    line = img_name.decode('utf8') + ';' + plate_label.upper() + '\n'
+    print line
     fo.write("%s" % line)
 
 if __name__ == "__main__":
@@ -135,7 +137,7 @@ if __name__ == "__main__":
     for i in range(0, numImgs):
         fake_plate_generator = FakePlateGenerator(fake_resource_dir, img_size)
         plate, plate_name, plate_chars = fake_plate_generator.generate_one_plate()
-        plate = underline(plate)
+        #plate = underline(plate)
         plate = jittering_color(plate)
         plate = add_noise(plate,noise_range)
         plate = jittering_blur(plate,gaussian_range)
