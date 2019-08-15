@@ -177,7 +177,7 @@ def json_generator(json_file, fname, plate_chars,box,json_data):
 if __name__ == "__main__":
     img_size = (300, 90)
     json_data = {}
-    json_file = sys.path[0]+"/ocr_label.json"
+    json_file = output_dir + "/ocr_label.json"
     reset_folder(output_dir)
     numImgs = args.num_imgs
     fo = codecs.open(output_dir + 'labels.txt', "w", encoding='utf-8')
