@@ -27,7 +27,7 @@ chinese_dir = fake_resource_dir + "/chinese/"
 number_dir = fake_resource_dir + "/numbers/" 
 letter_dir = fake_resource_dir + "/letters/" 
 plate_dir = fake_resource_dir + "/plate_background_use/"
-character_y_size = 45
+character_y_size = 47
 character_y_size_Top = 25
 plate_y_size = 90#164
 
@@ -75,7 +75,7 @@ class FakePlateGenerator():
             img = cv2.imread(path + filename, -1)
             
             height, width = img.shape[:2]
-            x_size = int(1.5 * int(width*(dst_y_size/float(height))))
+            x_size = int(1.4 * int(width*(dst_y_size/float(height))))
             img_scaled = cv2.resize(img, (x_size, dst_y_size), interpolation = cv2.INTER_CUBIC)
             
             img_list[filename[:-4]] = img_scaled
@@ -92,7 +92,7 @@ class FakePlateGenerator():
             img = cv2.imread(path + filename, -1)
             
             height, width = img.shape[:2]
-            x_size = int(3.7 * int(width*(dst_y_size/float(height))))
+            x_size = int(3.5 * int(width*(dst_y_size/float(height))))
             img_scaled = cv2.resize(img, (x_size, dst_y_size), interpolation = cv2.INTER_CUBIC)
             
             img_list[filename[:-4]] = img_scaled
@@ -136,7 +136,7 @@ class FakePlateGenerator():
         h_character, w_character = character.shape[:2]
 
         start_x = x - int(w_character/2)
-        start_y = int((h_plate - h_character)/2) + 15
+        start_y = int((h_plate - h_character)/2) + 13
 
         a_channel = cv2.split(character)[3]
         ret, mask = cv2.threshold(a_channel, 100, 255, cv2.THRESH_BINARY)
@@ -189,10 +189,10 @@ class FakePlateGenerator():
         pts3 = (int(pt3[0] * scalex)-3, int(pt3[1] * scaley)-3)
         pts4 = (int(pt4[0] * scalex)+3, int(pt4[1] * scaley)+3)
 
-        cv2.rectangle(plate_img, pts1,pts2, (0,0,255), 2)
-        cv2.rectangle(plate_img, pts3, pts4,(0,0,255),2)
-        cv2.imshow(' ', plate_img)
-        cv2.waitKey(0)
+        # cv2.rectangle(plate_img, pts1,pts2, (0,0,255), 2)
+        # cv2.rectangle(plate_img, pts3, pts4,(0,0,255),2)
+        # cv2.imshow(' ', plate_img)
+        # cv2.waitKey(0)
         box = ((pts1[0],pts1[1], pts2[0] - pts1[0], pts2[1] - pts1[1]),(pts3[0],pts3[1],pts4[0]-pts3[0],pts4[1]-pts3[1]))
         return plate_img, plate_name, plate_chars, box
 
