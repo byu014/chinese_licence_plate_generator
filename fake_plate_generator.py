@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import cv2
 import codecs
+import random
 import json
 
 from img_utils import *
@@ -30,6 +31,7 @@ plate_dir = fake_resource_dir + "/plate_background_use/"
 character_y_size = 47
 character_y_size_Top = 25
 plate_y_size = 90#164
+character_y_size_abnormal = 36
 
 class FakePlateGenerator(): 
     def __init__(self, fake_resource_dir, plate_size):
@@ -82,6 +84,8 @@ class FakePlateGenerator():
 
         return img_list
     
+    
+    
     def load_image_top(self, path, dst_y_size):
         img_list = {}
         current_path = sys.path[0]
@@ -130,6 +134,7 @@ class FakePlateGenerator():
 
         overlay_img(character, plate, mask, start_x, start_y)
         return start_x, start_y
+    
 
     def add_character_to_plate(self, character, plate, x):
         h_plate, w_plate = plate.shape[:2]
@@ -140,7 +145,18 @@ class FakePlateGenerator():
 
         a_channel = cv2.split(character)[3]
         ret, mask = cv2.threshold(a_channel, 100, 255, cv2.THRESH_BINARY)
+        overlay_img(character, plate, mask, start_x, start_y)
+        return start_x, start_y
+    
+    def add_character_to_plate_abnormal(self, character, plate, x):
+        h_plate, w_plate = plate.shape[:2]
+        h_character, w_character = character.shape[:2]
 
+        start_x = x - int(w_character/2)
+        start_y = int((h_plate - h_character)/2) + 20
+
+        a_channel = cv2.split(character)[3]
+        ret, mask = cv2.threshold(a_channel, 100, 255, cv2.THRESH_BINARY)
         overlay_img(character, plate, mask, start_x, start_y)
         return start_x, start_y
 
@@ -150,6 +166,7 @@ class FakePlateGenerator():
         plate_name = ""
         start_xy= []
 
+        #top
         character, img = self.get_radom_sample(self.chinese_Top)
         start_xy.append(self.add_character_to_plate_Top(img, plate_img, self.character_position_x_list_part_1[0]))
         plate_name += "%s"%(character,)
@@ -160,9 +177,10 @@ class FakePlateGenerator():
         plate_name += "%s"%(character,)
         plate_chars += character
 
+        #bottom
         for i in range(5):
             character, img2 =  self.get_radom_sample(self.numbers_and_letters)
-            start_xy.append(self.add_character_to_plate(img2, plate_img, self.character_position_x_list_part_2[i]))
+            start_xy.append(self.add_character_to_plate_abnormal(img2, plate_img, self.character_position_x_list_part_2[i]))
             plate_name += character
             plate_chars += character
 
@@ -195,6 +213,65 @@ class FakePlateGenerator():
         # cv2.waitKey(0)
         box = ((pts1[0],pts1[1], pts2[0] - pts1[0], pts2[1] - pts1[1]),(pts3[0],pts3[1],pts4[0]-pts3[0],pts4[1]-pts3[1]))
         return plate_img, plate_name, plate_chars, box
+    
+    def generate_one_plate_abnormal(self):
+        self.numbers = self.load_image(number_dir, character_y_size_abnormal)
+        self.letters = self.load_image(letter_dir, character_y_size_abnormal)
+        self.numbers_and_letters = dict(self.numbers, **self.letters)
+        plate_chars = ""
+        _, plate_img = self.get_radom_sample(self.plates)
+        plate_name = ""
+        start_xy_top = []
+        top_num = random.randint(1,5)
+        start_index = int((5 - top_num)/2)
+        #top
+        rand_character_position_x_list_part_1 = self.character_position_x_list_part_2
+        for i in range(top_num):
+            character, img1 = self.get_radom_sample(self.letters)
+            start_xy_top.append(self.add_character_to_plate_Top(img1, plate_img, rand_character_position_x_list_part_1[i+start_index] + random.randint(-10,10)))
+            plate_name += "%s"%(character,)
+            plate_chars += character
+
+        #bottom
+        start_xy_bot = []
+        bot_num = random.randint(1,5)
+        start_index = int((5 - bot_num)/2)
+        for i in range(bot_num):
+            character, img2 =  self.get_radom_sample(self.numbers_and_letters)
+            start_xy_bot.append(self.add_character_to_plate_abnormal(img2, plate_img, self.character_position_x_list_part_2[i+start_index] + random.randint(-10,10)))
+            plate_name += character
+            plate_chars += character
+
+        #转换为RBG三通道
+        plate_img = cv2.cvtColor(plate_img, cv2.COLOR_BGRA2BGR)
+  
+        #转换到目标大小
+        pt1 = (start_xy_top[0][0],start_xy_top[0][1])
+        pt2 = (start_xy_top[len(start_xy_top) - 1][0] + img1.shape[1], start_xy_top[len(start_xy_top)-1][1] + character_y_size_abnormal)
+        pt3 = (start_xy_bot[0][0], start_xy_bot[0][1])
+        pt4 = (start_xy_bot[len(start_xy_bot)-1][0] + img2.shape[1], start_xy_bot[len(start_xy_bot)-1][1] + character_y_size_abnormal)
+        # cv2.rectangle(plate_img, pt1,pt2, (0,0,255), 2)
+        # cv2.rectangle(plate_img, pt3, pt4,(0,0,255),2)
+        # cv2.imshow(' ', plate_img)
+        # cv2.waitKey(0)
+
+        plate_img = cv2.resize(plate_img, self.dst_size, interpolation = cv2.INTER_AREA)
+
+        scalex = self.dst_size[0]/self.plate_x_size
+        scaley = self.dst_size[1]/plate_y_size
+
+        pts1 = (int(pt1[0] * scalex)-3,int(pt1[1] * scaley)-3) 
+        pts2 = (int(pt2[0] * scalex)+3,int(pt2[1] * scaley)+3)
+        pts3 = (int(pt3[0] * scalex)-3, int(pt3[1] * scaley)-3)
+        pts4 = (int(pt4[0] * scalex)+3, int(pt4[1] * scaley)+3)
+
+        # cv2.rectangle(plate_img, pts1,pts2, (0,0,255), 2)
+        # cv2.rectangle(plate_img, pts3, pts4,(0,0,255),2)
+        # cv2.imshow(' ', plate_img)
+        # cv2.waitKey(0)
+        box = ((pts1[0],pts1[1], pts2[0] - pts1[0], pts2[1] - pts1[1]),(pts3[0],pts3[1],pts4[0]-pts3[0],pts4[1]-pts3[1]))
+        return plate_img, plate_name, plate_chars, box
+
 
 def write_to_txt(fo,img_name, plate_characters):
     plate_characters.decode('utf8')
@@ -224,7 +301,8 @@ if __name__ == "__main__":
     fo = codecs.open(output_dir + 'labels.txt', "w", encoding='utf-8')
     for i in range(0, numImgs):
         fake_plate_generator= FakePlateGenerator(fake_resource_dir, img_size)
-        plate, plate_name, plate_chars, box = fake_plate_generator.generate_one_plate()
+        # plate, plate_name, plate_chars, box = fake_plate_generator.generate_one_plate()
+        plate, plate_name, plate_chars, box = fake_plate_generator.generate_one_plate_abnormal()
         # #plate = underline(plate)
         # plate = jittering_color(plate)
         # plate = add_noise(plate,noise_range)
