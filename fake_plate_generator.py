@@ -154,6 +154,50 @@ class FakePlateGenerator():
         # cv2.waitKey(0)
         box = (pts1[0],pts1[1], pts2[0] - pts1[0], pts2[1] - pts1[1])
         return plate_img, plate_name, plate_chars, box
+    
+    def generate_one_plate_abnormal(self):
+        plate_chars = ""
+        _, plate_img = self.get_radom_sample(self.plates)
+        plate_name = ""
+        start_xy= []
+
+        character, img1 = self.get_radom_sample(self.chinese)
+        start_xy.append(self.add_character_to_plate(img1, plate_img, self.character_position_x_list_part_1[0] + random.randint(-15,15)))
+        plate_name += "%s"%(character,)
+        plate_chars += character
+
+        character, img = self.get_radom_sample(self.letters)
+        start_xy.append(self.add_character_to_plate(img, plate_img, self.character_position_x_list_part_1[1]+ random.randint(-15,15)))
+        plate_name += "%s"%(character,)
+        plate_chars += character
+
+        for i in range(5):
+            character, img2 =  self.get_radom_sample(self.numbers_and_letters)
+            start_xy.append(self.add_character_to_plate(img2, plate_img, self.character_position_x_list_part_2[i] + random.randint(-15,15)))
+            plate_name += character
+            plate_chars += character
+
+        #转换为RBG三通道
+        plate_img = cv2.cvtColor(plate_img, cv2.COLOR_BGRA2BGR)
+  
+        #转换到目标大小
+        pt1 = (start_xy[0][0],start_xy[0][1])
+        pt2 = (start_xy[6][0] + img2.shape[1], start_xy[6][1] + character_y_size)
+        # cv2.rectangle(plate_img, pt1,pt2, (0,0,255), 2)
+        # cv2.imshow(' ', plate_img)
+        # cv2.waitKey(0)
+
+        plate_img = cv2.resize(plate_img, self.dst_size, interpolation = cv2.INTER_AREA)
+
+        scalex = self.dst_size[0]/self.plate_x_size
+        scaley = self.dst_size[1]/plate_y_size
+        pts1 = (int(pt1[0] * scalex)-3,int(pt1[1] * scaley)-3) 
+        pts2 = (int(pt2[0] * scalex)+3,int(pt2[1] * scaley)+3)
+        cv2.rectangle(plate_img, pts1,pts2, (0,0,255), 2)
+        cv2.imshow(' ', plate_img)
+        cv2.waitKey(0)
+        box = (pts1[0],pts1[1], pts2[0] - pts1[0], pts2[1] - pts1[1])
+        return plate_img, plate_name, plate_chars, box
 
 def write_to_txt(fo,img_name, plate_characters):
     plate_characters.decode('utf8')
@@ -184,6 +228,7 @@ if __name__ == "__main__":
     for i in range(0, numImgs):
         fake_plate_generator= FakePlateGenerator(fake_resource_dir, img_size)
         plate, plate_name, plate_chars, box = fake_plate_generator.generate_one_plate()
+        #plate, plate_name, plate_chars, box = fake_plate_generator.generate_one_plate_abnormal()
         #plate = underline(plate)
         plate = jittering_color(plate)
         plate = add_noise(plate,noise_range)
