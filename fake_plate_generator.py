@@ -31,7 +31,6 @@ plate_dir = fake_resource_dir + "/plate_background_use/"
 character_y_size = 47
 character_y_size_Top = 25
 plate_y_size = 90#164
-character_y_size_abnormal = 36
 
 class FakePlateGenerator(): 
     def __init__(self, fake_resource_dir, plate_size):
@@ -180,7 +179,7 @@ class FakePlateGenerator():
         #bottom
         for i in range(5):
             character, img2 =  self.get_radom_sample(self.numbers_and_letters)
-            start_xy.append(self.add_character_to_plate_abnormal(img2, plate_img, self.character_position_x_list_part_2[i]))
+            start_xy.append(self.add_character_to_plate(img2, plate_img, self.character_position_x_list_part_2[i]))
             plate_name += character
             plate_chars += character
 
@@ -215,9 +214,9 @@ class FakePlateGenerator():
         return plate_img, plate_name, plate_chars, box
     
     def generate_one_plate_abnormal(self):
-        self.numbers = self.load_image(number_dir, character_y_size_abnormal)
-        self.letters = self.load_image(letter_dir, character_y_size_abnormal)
-        self.numbers_and_letters = dict(self.numbers, **self.letters)
+        # self.numbers = self.load_image(number_dir, character_y_size_abnormal)
+        # self.letters = self.load_image(letter_dir, character_y_size_abnormal)
+        # self.numbers_and_letters = dict(self.numbers, **self.letters)
         plate_chars = ""
         _, plate_img = self.get_radom_sample(self.plates)
         plate_name = ""
@@ -227,7 +226,7 @@ class FakePlateGenerator():
         #top
         rand_character_position_x_list_part_1 = self.character_position_x_list_part_2
         for i in range(top_num):
-            character, img1 = self.get_radom_sample(self.letters)
+            character, img1 = self.get_radom_sample(self.letters_Top)
             start_xy_top.append(self.add_character_to_plate_Top(img1, plate_img, rand_character_position_x_list_part_1[i+start_index] + random.randint(-10,10)))
             plate_name += "%s"%(character,)
             plate_chars += character
@@ -238,7 +237,7 @@ class FakePlateGenerator():
         start_index = int((5 - bot_num)/2)
         for i in range(bot_num):
             character, img2 =  self.get_radom_sample(self.numbers_and_letters)
-            start_xy_bot.append(self.add_character_to_plate_abnormal(img2, plate_img, self.character_position_x_list_part_2[i+start_index] + random.randint(-10,10)))
+            start_xy_bot.append(self.add_character_to_plate(img2, plate_img, self.character_position_x_list_part_2[i+start_index] + random.randint(-10,10)))
             plate_name += character
             plate_chars += character
 
@@ -247,9 +246,9 @@ class FakePlateGenerator():
   
         #转换到目标大小
         pt1 = (start_xy_top[0][0],start_xy_top[0][1])
-        pt2 = (start_xy_top[len(start_xy_top) - 1][0] + img1.shape[1], start_xy_top[len(start_xy_top)-1][1] + character_y_size_abnormal)
+        pt2 = (start_xy_top[len(start_xy_top) - 1][0] + img1.shape[1], start_xy_top[len(start_xy_top)-1][1] + character_y_size_Top)
         pt3 = (start_xy_bot[0][0], start_xy_bot[0][1])
-        pt4 = (start_xy_bot[len(start_xy_bot)-1][0] + img2.shape[1], start_xy_bot[len(start_xy_bot)-1][1] + character_y_size_abnormal)
+        pt4 = (start_xy_bot[len(start_xy_bot)-1][0] + img2.shape[1], start_xy_bot[len(start_xy_bot)-1][1] + character_y_size)
         # cv2.rectangle(plate_img, pt1,pt2, (0,0,255), 2)
         # cv2.rectangle(plate_img, pt3, pt4,(0,0,255),2)
         # cv2.imshow(' ', plate_img)
@@ -301,7 +300,7 @@ if __name__ == "__main__":
     fo = codecs.open(output_dir + 'labels.txt', "w", encoding='utf-8')
     for i in range(0, numImgs):
         fake_plate_generator= FakePlateGenerator(fake_resource_dir, img_size)
-        # plate, plate_name, plate_chars, box = fake_plate_generator.generate_one_plate()
+        #plate, plate_name, plate_chars, box = fake_plate_generator.generate_one_plate()
         plate, plate_name, plate_chars, box = fake_plate_generator.generate_one_plate_abnormal()
         # #plate = underline(plate)
         # plate = jittering_color(plate)
