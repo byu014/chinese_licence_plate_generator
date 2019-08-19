@@ -28,7 +28,7 @@ number_dir = fake_resource_dir + "/numbers/"
 letter_dir = fake_resource_dir + "/letters/" 
 ling_dir = fake_resource_dir + "/ling/"
 plate_dir = fake_resource_dir + "/plate_background_use/"
-character_y_size = 113
+character_y_size = 110
 plate_y_size = 164
 
 class FakePlateGenerator(): 
