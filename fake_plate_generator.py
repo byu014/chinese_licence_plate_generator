@@ -156,9 +156,9 @@ class FakePlateGenerator():
         pts1 = (int(pt1[0] * scalex)-3,int(pt1[1] * scaley)-3) 
         pts2 = (int(pt2[0] * scalex)+3,int(pt2[1] * scaley)+3)
 
-        cv2.rectangle(plate_img, pts1,pts2, (0,0,255), 2)
-        cv2.imshow(' ', plate_img)
-        cv2.waitKey(0)
+        # cv2.rectangle(plate_img, pts1,pts2, (0,0,255), 2)
+        # cv2.imshow(' ', plate_img)
+        # cv2.waitKey(0)
         
         box = (pts1[0],pts1[1], pts2[0] - pts1[0], pts2[1] - pts1[1])
         return plate_img, plate_name, plate_chars, box
