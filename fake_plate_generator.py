@@ -29,7 +29,7 @@ plate_dir = fake_resource_dir + "/plate_background_use/"
 class FakePlateGenerator():
     def __init__(self, fake_resource_dir, plate_size):
 
-        character_y_size = 113
+        character_y_size = 110
         plate_y_size = 164
 
         self.dst_size = plate_size
