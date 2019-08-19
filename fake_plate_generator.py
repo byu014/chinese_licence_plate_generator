@@ -26,6 +26,7 @@ motion_blur = args.motion_blur
 chinese_dir = fake_resource_dir + "/chinese/"
 number_dir = fake_resource_dir + "/numbers/" 
 letter_dir = fake_resource_dir + "/letters/" 
+ling_dir = fake_resource_dir + "/ling/"
 plate_dir = fake_resource_dir + "/plate_background_use/"
 character_y_size = 113
 plate_y_size = 164
@@ -39,7 +40,7 @@ class FakePlateGenerator():
         self.chinese = self.load_image(chinese_dir, character_y_size)
         self.numbers = self.load_image(number_dir, character_y_size)
         self.letters = self.load_image(letter_dir, character_y_size)
-
+        self.ling = self.load_image(ling_dir, character_y_size)
         self.numbers_and_letters = dict(self.numbers, **self.letters)
 
         #we only use blue plate here
@@ -127,11 +128,16 @@ class FakePlateGenerator():
         plate_name += "%s"%(character,)
         plate_chars += character
 
-        for i in range(5):
-            character, img2 =  self.get_radom_sample(self.numbers_and_letters)
-            start_xy.append(self.add_character_to_plate(img2, plate_img, self.character_position_x_list_part_2[i]))
+        for i in range(4):
+            character, img =  self.get_radom_sample(self.numbers_and_letters)
+            start_xy.append(self.add_character_to_plate(img, plate_img, self.character_position_x_list_part_2[i]))
             plate_name += character
             plate_chars += character
+        
+        character, img2 =  self.get_radom_sample(self.ling)
+        start_xy.append(self.add_character_to_plate(img2, plate_img, self.character_position_x_list_part_2[len(self.character_position_x_list_part_2)-1]))
+        plate_name += character
+        plate_chars += character
 
         #转换为RBG三通道
         plate_img = cv2.cvtColor(plate_img, cv2.COLOR_BGRA2BGR)
@@ -149,9 +155,11 @@ class FakePlateGenerator():
         scaley = self.dst_size[1]/plate_y_size
         pts1 = (int(pt1[0] * scalex)-3,int(pt1[1] * scaley)-3) 
         pts2 = (int(pt2[0] * scalex)+3,int(pt2[1] * scaley)+3)
-        # cv2.rectangle(plate_img, pts1,pts2, (0,0,255), 2)
-        # cv2.imshow(' ', plate_img)
-        # cv2.waitKey(0)
+
+        cv2.rectangle(plate_img, pts1,pts2, (0,0,255), 2)
+        cv2.imshow(' ', plate_img)
+        cv2.waitKey(0)
+        
         box = (pts1[0],pts1[1], pts2[0] - pts1[0], pts2[1] - pts1[1])
         return plate_img, plate_name, plate_chars, box
     
